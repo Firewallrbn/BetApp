@@ -77,13 +77,13 @@ const styles = StyleSheet.create({
     justifyContent: "flex-start",
     alignItems: "center",
     padding: 20,
-    // quitado `gap` por compatibilidad con web
   },
   logo: {
     height: 90,
     width: 290,
-    marginBottom: 0,
+    marginTop: 50,
     resizeMode: "contain",
+    
   },
   title: {
     fontSize: 32,

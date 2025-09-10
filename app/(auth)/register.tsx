@@ -1,4 +1,5 @@
 import { Image } from "expo-image";
+import { Link } from "expo-router";
 import React from "react";
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 
@@ -74,14 +75,14 @@ export default function Register({
       </TouchableOpacity>
 
       <Text style={styles.orText}>¿Ya tienes cuenta?</Text>
-
-      <TouchableOpacity
-        style={[styles.buttonAlt, { backgroundColor: "#1E90FF" }]}
-        onPress={onSwitchToSignIn}
-        activeOpacity={0.8}
-      >
-        <Text style={styles.buttonText}>Iniciar sesión</Text>
-      </TouchableOpacity>
+      <Link href="/login" asChild>
+        <TouchableOpacity
+          style={styles.buttonAlt}
+          activeOpacity={0.8}
+        >
+          <Text style={styles.buttonText}>Iniciar sesión</Text>
+        </TouchableOpacity>
+      </Link>
     </View>
   );
 }
@@ -99,6 +100,7 @@ const styles = StyleSheet.create({
     width: 290,
     marginBottom: 0,
     resizeMode: "contain",
+    marginTop: 50,
   },
   title: {
     fontSize: 32,
@@ -164,6 +166,7 @@ const styles = StyleSheet.create({
     marginVertical: 5,
   },
   buttonAlt: {
+    backgroundColor: "#1E90FF",
     borderRadius: 5,
     padding: 12,
     alignItems: "center",

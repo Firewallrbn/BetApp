@@ -1,4 +1,5 @@
 import { Image } from "expo-image";
+import { Link } from "expo-router";
 import React from "react";
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 
@@ -36,12 +37,19 @@ export default function Login() {
       <View style={styles.rememberContainer}>
         <TouchableOpacity style={styles.checkbox} />
         <Text style={styles.rememberText}>Recuérdame</Text>
-        <Text style={styles.link}>                   ¿Olvidaste tu contraseña?</Text>
+        <Link href="/(auth)/resetpas" asChild>
+          <Text style={styles.link}>                   ¿Olvidaste tu contraseña?</Text>
+        </Link>
       </View>
 
-      <TouchableOpacity style={styles.button}>
-        <Text style={styles.buttonText}>Iniciar sesión</Text>
-      </TouchableOpacity>
+<Link href="/(main)/home" asChild>
+  <TouchableOpacity
+    style={styles.buttonAlt} // color ya en styles
+    activeOpacity={0.8}
+  >
+    <Text style={styles.buttonText}>Iniciar sesión</Text>
+  </TouchableOpacity>
+</Link>
 
       <Text style={styles.orText}>OR</Text>
 
@@ -146,6 +154,7 @@ const styles = StyleSheet.create({
     marginVertical: 5,
   },
   buttonAlt: {
+    backgroundColor: "#4CAF50",
     borderRadius: 5,
     padding: 12,
     alignItems: "center",
