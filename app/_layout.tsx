@@ -1,7 +1,9 @@
 import { Stack } from 'expo-router';
+import { AuthProvider } from './contexts/AuthContext';
 
 export default function RootLayout() {
     return (
+        <AuthProvider>  
         <Stack
             initialRouteName='(auth)'
             screenOptions={{ headerShown: false }}
@@ -10,5 +12,6 @@ export default function RootLayout() {
             <Stack.Screen name="(auth)" />
             <Stack.Screen name="(main)" />
         </Stack>
+        </AuthProvider>
     );
 }
