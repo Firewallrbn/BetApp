@@ -3,6 +3,7 @@ import { supabase } from "@/utils/supabase";
 import React, { createContext, useState } from "react";
 
 
+
 interface AuthContextProps {
   user: any;
   isLoading: boolean;
@@ -37,7 +38,7 @@ const fakeDataSource = [
 
 export const AuthContext = createContext({} as AuthContextProps);
 export const AuthProvider = ({ children }: any) => {
-  const [user, setUser] = useState (null);
+  const [user, setUser] = useState<null | any>(null);
   const [isLoading, setIsLoading] = useState(false);
 
        /* const login =async (email:string, password:string)=>{
@@ -52,13 +53,18 @@ export const AuthProvider = ({ children }: any) => {
     */
 
     const login = async (email:string, password:string) => {
-        const response = await supabase.auth.signInWithPassword({
-            email,
-            password
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
         });
-    return true;
-    }
-        
+        if (error || !data.user) {
+          return false;
+        }
+        if (data.user) {
+            setUser(data.user);
+        }
+        return true;
+      };
 
  const register = async () => {
 

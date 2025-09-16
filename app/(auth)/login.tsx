@@ -23,7 +23,7 @@ export default function login() {
   const handleLogin1 = async () => {
     const success = await context.login(email, password);
     if (success) {
-      console.log("Login successful");
+      router.push("/(main)/home");
     }
   };
 
