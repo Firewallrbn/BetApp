@@ -57,6 +57,12 @@ export const AuthProvider = ({ children }: any) => {
           email,
           password,
         });
+        const supabaseResponse = await supabase
+        .from("profiles")
+        .select()
+       // .eq("id", response.data.user.id)
+        setUser(supabaseResponse.data);
+
         if (error || !data.user) {
           return false;
         }
@@ -67,6 +73,19 @@ export const AuthProvider = ({ children }: any) => {
       };
 
  const register = async (email: string, password: string, fullName?: string) => {
+    // const supabaseResponse = await supabase
+    // .from('profiles')
+    // .insert({ 
+    //     id: response.data.user?.id,
+    //     full_name: fullName
+
+    //const updateUser = (params: string) => {
+    //   const supabaseResponse = await supabase
+    //   .from("profiles")
+    //   .update({ full_name: params })
+    //   .eq("id", response.data.user.id)
+    //   setUser(supabaseResponse.data);
+    // }
     setIsLoading(true);
     try{
         const { data, error } = await supabase.auth.signUp({

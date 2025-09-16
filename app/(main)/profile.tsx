@@ -1,6 +1,6 @@
 // app/(main)/profile.tsx
 import { Image } from "expo-image";
-import { useRouter } from "expo-router";
+import { Link, useRouter } from "expo-router";
 import React, { useContext } from "react";
 import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { AuthContext } from "../contexts/AuthContext";
@@ -19,9 +19,7 @@ export default function Profile() {
     winRate: 58,
   };
 
-  const handleEdit = () => {
-    Alert.alert("Editar perfil", "Aquí iría la pantalla de edición (demo).");
-  };
+
 
   const handleDeposit = () => {
     Alert.alert("Depositar", "Abrir modal / pantalla de depósito (demo).");
@@ -35,6 +33,10 @@ export default function Profile() {
     } finally {
       router.replace("/(auth)/login");
     }
+  };
+
+  const handleEdit = () => {
+    Alert.alert("Editar perfil", "Aquí iría la pantalla de edición (demo).");
   };
 
   return (
@@ -71,10 +73,11 @@ export default function Profile() {
           <TouchableOpacity style={styles.primaryBtn} onPress={handleDeposit}>
             <Text style={styles.primaryBtnText}>Depositar</Text>
           </TouchableOpacity>
-
-          <TouchableOpacity style={styles.outlineBtn} onPress={handleEdit}>
-            <Text style={styles.outlineBtnText}>Editar perfil</Text>
-          </TouchableOpacity>
+          <Link href="/(auth)/editprofile" asChild>
+            <TouchableOpacity style={styles.outlineBtn}>
+              <Text style={styles.outlineBtnText}>Editar perfil</Text>
+            </TouchableOpacity>
+          </Link>
         </View>
       </View>
 
