@@ -4,18 +4,26 @@ import React, { useContext, useState } from "react";
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { AuthContext } from "../contexts/AuthContext";
 
-export default function Login() {
+export default function login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const context = useContext(AuthContext); // Acceder al contexto de autenticación
   const router = useRouter();
+   
+
 
   const handleLogin = async () => {
     console.log("Login", { email, password });
     const success = await context.login(email, password);
     if (success) {
       router.push("/(main)/home");
+    }
+  };
+  const handleLogin1 = async () => {
+    const success = await context.login(email, password);
+    if (success) {
+      console.log("Login successful");
     }
   };
 
@@ -47,16 +55,16 @@ export default function Login() {
         keyboardType="email-address"
         autoCapitalize="none"
         placeholderTextColor="#888"
-        value={email}                  // 👈 conectado al estado
-        onChangeText={setEmail}        // 👈 actualiza el estado
+        value={email}                  
+        onChangeText={setEmail}        
       />
       <TextInput 
         style={styles.input} 
         placeholder="Contraseña" 
         secureTextEntry 
         placeholderTextColor="#888"
-        value={password}               // 👈 conectado al estado
-        onChangeText={setPassword}     // 👈 actualiza el estado
+        value={password}               
+        onChangeText={setPassword}    
       />
 
       <View style={styles.rememberContainer}>
@@ -70,7 +78,7 @@ export default function Login() {
       <TouchableOpacity
         style={styles.buttonAlt}
         activeOpacity={0.8}
-        onPress={handleLogin}          // 👈 aquí el onPress
+        onPress={handleLogin1}          
       >
         <Text style={styles.buttonText}>Iniciar sesión</Text>
       </TouchableOpacity>

@@ -1,4 +1,5 @@
 // app/contexts/AuthContext.tsx
+import { supabase } from "@/utils/supabase";
 import React, { createContext, useState } from "react";
 
 
@@ -39,7 +40,7 @@ export const AuthProvider = ({ children }: any) => {
   const [user, setUser] = useState (null);
   const [isLoading, setIsLoading] = useState(false);
 
-        const login =async (email:string, password:string)=>{
+       /* const login =async (email:string, password:string)=>{
         for (let index = 0; index < fakeDataSource.length; index++) {
             if (fakeDataSource[index].email===email && fakeDataSource[index].password===password) {
                
@@ -48,7 +49,16 @@ export const AuthProvider = ({ children }: any) => {
         }
         return false
     }
+    */
 
+    const login = async (email:string, password:string) => {
+        const response = await supabase.auth.signInWithPassword({
+            email,
+            password
+        });
+    return true;
+    }
+        
 
  const register = async () => {
 
