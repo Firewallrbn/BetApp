@@ -1,11 +1,13 @@
 // app/(main)/profile.tsx
 import { Image } from "expo-image";
 import { useRouter } from "expo-router";
-import React from "react";
+import React, { useContext } from "react";
 import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { AuthContext } from "../contexts/AuthContext";
 
 export default function Profile() {
   const router = useRouter();
+  const { logout } = useContext(AuthContext);
 
   // Datos de ejemplo — reemplaza por tu estado / store / API
   const user = {
@@ -25,9 +27,14 @@ export default function Profile() {
     Alert.alert("Depositar", "Abrir modal / pantalla de depósito (demo).");
   };
 
-  const handleLogout = () => {
-    // Reemplaza la ruta si tu login está en otra ruta
-    router.replace("/(auth)/login");
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch (error) {
+      console.error("Error al cerrar sesión", error);
+    } finally {
+      router.replace("/(auth)/login");
+    }
   };
 
   return (

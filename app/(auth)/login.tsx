@@ -4,40 +4,43 @@ import React, { useContext, useState } from "react";
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { AuthContext } from "../contexts/AuthContext";
 
-export default function login() {
+export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const context = useContext(AuthContext); // Acceder al contexto de autenticación
+  const { login, isLoading } = useContext(AuthContext);
   const router = useRouter();
-   
+
 
 
   const handleLogin = async () => {
-    console.log("Login", { email, password });
-    const success = await context.login(email, password);
+    const sanitizedEmail = email.trim();
+
+    if (!sanitizedEmail || !password) {
+      setErrorMessage("Ingresa tu correo y contraseña.");
+      return;
+    }
+
+    setErrorMessage(null);
+
+    const success = await login(sanitizedEmail, password);
+
     if (success) {
       router.push("/(main)/home");
+      return;
     }
-  };
-  const handleLogin1 = async () => {
-    const success = await context.login(email, password);
-    if (success) {
-      console.log("Login successful");
-    }
+
+    setErrorMessage("Correo o contraseña incorrectos.");
   };
 
-  const hola= async()=>{
-    router.push("/(main)/home")}
-
-  const handleRegister = () => {
-    console.log("Register", { email, password });
-    context.register(email, password);
+  const handleAppleLogin = async () => {
+    router.push("/(main)/home");
   };
 
   return (
     <View style={styles.container}>
-      <Image 
+      <Image
         source={require('@/assets/images/Logo.png')}
         style={styles.logo}
       />
@@ -58,14 +61,16 @@ export default function login() {
         value={email}                  
         onChangeText={setEmail}        
       />
-      <TextInput 
-        style={styles.input} 
-        placeholder="Contraseña" 
-        secureTextEntry 
+      <TextInput
+        style={styles.input}
+        placeholder="Contraseña"
+        secureTextEntry
         placeholderTextColor="#888"
-        value={password}               
-        onChangeText={setPassword}    
+        value={password}
+        onChangeText={setPassword}
       />
+
+      {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
 
       <View style={styles.rememberContainer}>
         <TouchableOpacity style={styles.checkbox} />
@@ -76,17 +81,25 @@ export default function login() {
       </View>
 
       <TouchableOpacity
-        style={styles.buttonAlt}
+        style={[
+          styles.buttonAlt,
+          isLoading ? styles.buttonDisabled : null,
+        ]}
         activeOpacity={0.8}
-        onPress={handleLogin1}          
+        onPress={handleLogin}
+        disabled={isLoading}
       >
-        <Text style={styles.buttonText}>Iniciar sesión</Text>
+        <Text style={styles.buttonText}>
+          {isLoading ? "Iniciando sesión..." : "Iniciar sesión"}
+        </Text>
       </TouchableOpacity>
 
       <Text style={styles.orText}>OR</Text>
  
-      <TouchableOpacity style={[styles.buttonAlt, styles.socialButton, { backgroundColor: '#000000' }]}
-      onPress={hola}>
+      <TouchableOpacity
+        style={[styles.buttonAlt, styles.socialButton, { backgroundColor: "#000000" }]}
+        onPress={handleAppleLogin}
+      >
         <Image
           source={require('@/assets/images/apple.png')}
           style={styles.socialIcon}
@@ -195,10 +208,18 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontWeight: "600",
   },
+  buttonDisabled: {
+    opacity: 0.7,
+  },
   orText: {
     fontSize: 16,
     fontWeight: "bold",
     marginVertical: 5,
+  },
+  errorText: {
+    color: "#D32F2F",
+    alignSelf: "flex-start",
+    marginTop: 4,
   },
   socialButton: {
     flexDirection: "row",
