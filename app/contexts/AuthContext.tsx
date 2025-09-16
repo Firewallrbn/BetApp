@@ -8,7 +8,7 @@ interface AuthContextProps {
   user: any;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<boolean>;
-  register: (email: string, password: string) => Promise<void>;
+  register: (email: string, password: string, fullName?: string) => Promise<boolean>;
   logout: () => void;
 }
 
@@ -66,9 +66,26 @@ export const AuthProvider = ({ children }: any) => {
         return true;
       };
 
- const register = async () => {
-
+ const register = async (email: string, password: string, fullName?: string) => {
+    setIsLoading(true);
+    try{
+        const { data, error } = await supabase.auth.signUp({
+            email,
+            password,
+            options: fullName
+          ? {
+              data: { full_name: fullName },
+            }
+          : undefined,
+      });
+      if (error || !data.user) {
+        return false;
+      }
+      return true;
+    } finally {
+      setIsLoading(false);
     }
+  };
 
     const logout = async () => {
         setUser(null);
@@ -85,4 +102,5 @@ export const AuthProvider = ({ children }: any) => {
     >
         {children}
     </AuthContext.Provider>
-}
+
+};
