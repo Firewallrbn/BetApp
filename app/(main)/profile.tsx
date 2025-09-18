@@ -1,25 +1,48 @@
 // app/(main)/profile.tsx
 import { Image } from "expo-image";
-import { Link, useRouter } from "expo-router";
-import React, { useContext } from "react";
+import { useRouter } from "expo-router";
+import React, { useContext, useEffect } from "react";
 import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { AuthContext } from "../contexts/AuthContext";
 
 export default function Profile() {
   const router = useRouter();
-  const { logout } = useContext(AuthContext);
+  const { user, profile, refreshProfile, logout } = useContext(AuthContext);
 
-  // Datos de ejemplo — reemplaza por tu estado / store / API
-  const user = {
-    name: "Juan Cruz",
-    email: "juan.cruz@example.com",
-    avatar: require("../../assets/images/R.jpg"),
-    balance: 600.000,
-    betsOpen: 3,
-    winRate: 58,
+  useEffect(() => {
+    if (user && !profile) {
+      refreshProfile();
+    }
+  }, [user, profile, refreshProfile]);
+
+  const displayName =
+    profile?.full_name ??
+    user?.user_metadata?.display_name ??
+    user?.user_metadata?.full_name ??
+    user?.email ??
+    "Usuario";
+
+  const email = user?.email ?? "Sin correo";
+
+  const toNumber = (value: number | string | null | undefined) => {
+    if (value === null || value === undefined) {
+      return 0;
+    }
+    const parsed = Number(value);
+    return Number.isNaN(parsed) ? 0 : parsed;
   };
 
+  const balanceValue = toNumber(profile?.balance);
+  const openBetsValue = toNumber(profile?.bets_open);
+  const winRateValue = toNumber(profile?.win_rate);
 
+  const formattedBalance = !Number.isNaN(balanceValue)
+    ? balanceValue.toLocaleString(undefined, { minimumFractionDigits: 2 })
+    : "0.00";
+
+  const avatarSource = profile?.avatar_url
+    ? { uri: profile.avatar_url }
+    : require("../../assets/images/R.jpg");
 
   const handleDeposit = () => {
     Alert.alert("Depositar", "Abrir modal / pantalla de depósito (demo).");
@@ -36,17 +59,17 @@ export default function Profile() {
   };
 
   const handleEdit = () => {
-    Alert.alert("Editar perfil", "Aquí iría la pantalla de edición (demo).");
+    router.push("/(auth)/editprofile");
   };
 
   return (
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <Image source={user.avatar} style={styles.avatar} contentFit="cover" />
+        <Image source={avatarSource} style={styles.avatar} contentFit="cover" />
         <View style={styles.headerText}>
-          <Text style={styles.name}>{user.name}</Text>
-          <Text style={styles.email}>{user.email}</Text>
+          <Text style={styles.name}>{displayName}</Text>
+          <Text style={styles.email}>{email}</Text>
         </View>
       </View>
 
@@ -54,17 +77,17 @@ export default function Profile() {
       <View style={styles.card}>
         <Text style={styles.cardTitle}>Saldo</Text>
         <Text style={styles.balance}>
-          ${user.balance.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+          ${formattedBalance}
         </Text>
 
         <View style={styles.kpiRow}>
           <View style={styles.kpi}>
-            <Text style={styles.kpiNum}>{user.betsOpen}</Text>
+            <Text style={styles.kpiNum}>{openBetsValue}</Text>
             <Text style={styles.kpiLabel}>Apuestas</Text>
           </View>
 
           <View style={styles.kpi}>
-            <Text style={styles.kpiNum}>{user.winRate}%</Text>
+            <Text style={styles.kpiNum}>{winRateValue}%</Text>
             <Text style={styles.kpiLabel}>Win rate</Text>
           </View>
         </View>
@@ -73,11 +96,9 @@ export default function Profile() {
           <TouchableOpacity style={styles.primaryBtn} onPress={handleDeposit}>
             <Text style={styles.primaryBtnText}>Depositar</Text>
           </TouchableOpacity>
-          <Link href="/(auth)/editprofile" asChild>
-            <TouchableOpacity style={styles.outlineBtn}>
-              <Text style={styles.outlineBtnText}>Editar perfil</Text>
-            </TouchableOpacity>
-          </Link>
+          <TouchableOpacity style={styles.outlineBtn} onPress={handleEdit}>
+            <Text style={styles.outlineBtnText}>Editar perfil</Text>
+          </TouchableOpacity>
         </View>
       </View>
 
