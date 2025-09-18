@@ -3,16 +3,16 @@ import { Feather, Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import React, { useRef, useState } from "react";
 import {
-    Alert,
-    Animated,
-    Dimensions,
-    SafeAreaView,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View
+  Alert,
+  Animated,
+  Dimensions,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
 } from "react-native";
 
 const { width } = Dimensions.get("window");
@@ -52,7 +52,7 @@ export default function MegaHomeBetting() {
 
         <View style={styles.headerRow}>
           <View>
-            <Text style={styles.greeting}>¡Hola, Juan</Text>
+            <Text style={styles.greeting}>¡Bienvenido</Text>
             <Text style={styles.subGreeting}>Tu centro de apuestas </Text>
           </View>
 

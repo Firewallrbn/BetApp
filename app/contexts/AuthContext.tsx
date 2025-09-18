@@ -19,6 +19,10 @@ export type Profile = {
   last_active?: string | null;
   created_at?: string | null;
   updated_at?: string | null;
+  balance?: number | null;
+  bets_count?: number | null;
+  win_rate?: number | null;
+  bets_open?: number | null;
 };
 
 interface AuthContextProps {

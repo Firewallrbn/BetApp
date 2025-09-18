@@ -17,31 +17,24 @@ import { AuthContext } from "../contexts/AuthContext";
 
 export default function Profile() {
   const router = useRouter();
-  const { logout } = useContext(AuthContext);
+  const { logout, user } = useContext(AuthContext); // ⬅️ del contexto
 
-  // Habilita animaciones en Android
   useEffect(() => {
     if (Platform.OS === "android" && UIManager.setLayoutAnimationEnabledExperimental) {
       UIManager.setLayoutAnimationEnabledExperimental(true);
     }
   }, []);
 
-  // Datos de ejemplo — reemplaza por tu estado / store / API
-  const user = {
-    name: "Juan Cruz",
-    username: "juancruz",
-    bio: "Amante del fútbol, data y buenos parlays.",
-    phone: "+57 300 123 4567",
-    gender: "Masculino",
-    email: "juan.cruz@example.com",
-    avatar: require("../../assets/images/R.jpg"),
-    balance: 600.0,
-    betsOpen: 3,
-    winRate: 58,
-  };
+  // 🔒 Guard: mientras no haya user, evita acceder a null
+  if (!user) {
+    return (
+      <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
+        <Text>Cargando perfil…</Text>
+      </View>
+    );
+  }
 
   const [infoOpen, setInfoOpen] = useState(false);
-
   const toggleInfo = () => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setInfoOpen((v) => !v);
@@ -54,25 +47,41 @@ export default function Profile() {
   const handleLogout = async () => {
     try {
       await logout();
-    } catch (error) {
-      console.error("Error al cerrar sesión", error);
     } finally {
       router.replace("/(auth)/login");
     }
   };
 
   const handleEdit = () => {
+    // ajusta a tu ruta real (si tu archivo es app/(main)/profile/EditProfile.tsx)
     router.push("/(auth)/EditProfile");
+    // o si usas edit.tsx: router.push("/profile/edit");
   };
+
+  // ✅ valores con fallback para que no explote el render
+  const name = user.name ?? "—";
+  const email = user.email ?? "—";
+  const avatarSource = user.avatar_url
+    ? { uri: user.avatar_url }
+    : require("../../assets/images/R.jpg");
+
+  const balance = user.balance ?? 0;
+  const betsOpen = user.bets_open ?? 0;
+  const winRate = user.win_rate ?? 0;
+
+  const username = user.username ?? "usuario";
+  const bio = user.bio ?? "";
+  const phone = user.phone ?? "";
+  const gender = user.gender ?? "";
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <Image source={user.avatar} style={styles.avatar} contentFit="cover" />
+        <Image source={avatarSource} style={styles.avatar} contentFit="cover" />
         <View style={styles.headerText}>
-          <Text style={styles.name}>{user.name}</Text>
-          <Text style={styles.email}>{user.email}</Text>
+          <Text style={styles.name}>{name}</Text>
+          <Text style={styles.email}>{email}</Text>
         </View>
       </View>
 
@@ -80,21 +89,17 @@ export default function Profile() {
       <View style={styles.card}>
         <Text style={styles.cardTitle}>Saldo</Text>
         <Text style={styles.balance}>
-          $
-          {user.balance.toLocaleString(undefined, {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-          })}
+          ${balance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
         </Text>
 
         <View style={styles.kpiRow}>
           <View style={styles.kpi}>
-            <Text style={styles.kpiNum}>{user.betsOpen}</Text>
+            <Text style={styles.kpiNum}>{betsOpen}</Text>
             <Text style={styles.kpiLabel}>Apuestas</Text>
           </View>
 
           <View style={styles.kpi}>
-            <Text style={styles.kpiNum}>{user.winRate}%</Text>
+            <Text style={styles.kpiNum}>{winRate}%</Text>
             <Text style={styles.kpiLabel}>Win rate</Text>
           </View>
         </View>
@@ -103,10 +108,10 @@ export default function Profile() {
           <TouchableOpacity style={styles.primaryBtn} onPress={handleDeposit}>
             <Text style={styles.primaryBtnText}>Depositar</Text>
           </TouchableOpacity>
-          {/* <Link href="(auth)/editprofile" asChild> */}
-            <TouchableOpacity style={styles.outlineBtn} onPress={handleEdit}>
-              <Text style={styles.outlineBtnText}>Editar perfil</Text>
-            </TouchableOpacity>
+
+          <TouchableOpacity style={styles.outlineBtn} onPress={handleEdit}>
+            <Text style={styles.outlineBtnText}>Editar perfil</Text>
+          </TouchableOpacity>
         </View>
       </View>
 
@@ -145,11 +150,11 @@ export default function Profile() {
 
         {infoOpen && (
           <View style={styles.infoContainer}>
-            <InfoItem label="Nombre" value={user.name} />
-            <InfoItem label="Usuario" value={`@${user.username}`} />
-            <InfoItem label="Bio" value={user.bio} multiline />
-            <InfoItem label="Teléfono" value={user.phone} />
-            <InfoItem label="Género" value={user.gender} />
+            <InfoItem label="Nombre" value={name} />
+            <InfoItem label="Usuario" value={`@${username}`} />
+            <InfoItem label="Bio" value={bio} multiline />
+            <InfoItem label="Teléfono" value={phone} />
+            <InfoItem label="Género" value={gender} />
           </View>
         )}
       </View>
@@ -158,8 +163,7 @@ export default function Profile() {
       <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
         <Text style={styles.logoutText}>Cerrar sesión</Text>
       </TouchableOpacity>
-
-   </ScrollView>
+    </ScrollView>
   );
 }
 
@@ -175,7 +179,7 @@ function InfoItem({
   return (
     <View style={styles.infoRow}>
       <Text style={styles.infoLabel}>{label}</Text>
-      <Text style={[styles.infoValue, multiline && { flexWrap: "wrap" }]} numberOfLines={multiline ? 0 : 1}>
+      <Text style={[styles.infoValue, multiline && { flexWrap: "wrap" }]} numberOfLines={multiline ? undefined : 1}>
         {value}
       </Text>
     </View>
@@ -183,24 +187,20 @@ function InfoItem({
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#F8FBF8", padding: 18 },
-
+  container: { padding: 18, backgroundColor: "#F8FBF8" },
   header: { flexDirection: "row", alignItems: "center", marginTop: 50, marginBottom: 18 },
   avatar: { width: 78, height: 78, borderRadius: 60, backgroundColor: "#E6F4EA" },
   headerText: { marginLeft: 12 },
   name: { fontSize: 20, fontWeight: "800", color: "#0F3D12" },
   email: { color: "#3A6F3A", marginTop: 4 },
-
   card: { backgroundColor: "#fff", borderRadius: 12, padding: 16, elevation: 3, marginBottom: 18 },
   cardTitle: { color: "#2E7D32", fontWeight: "700", marginBottom: 6 },
   balance: { fontSize: 24, fontWeight: "900", color: "#145A32", marginBottom: 12 },
-
   kpiRow: { flexDirection: "row", justifyContent: "space-between", marginBottom: 12 },
   kpi: { alignItems: "flex-start" },
   kpiNum: { fontWeight: "800", fontSize: 18, color: "#145A32" },
   kpiLabel: { color: "#4C9E62", fontSize: 12 },
-
-  actionsRow: { flexDirection: "row", justifyContent: "space-between", gap: 8 },
+  actionsRow: { flexDirection: "row", justifyContent: "space-between" },
   primaryBtn: {
     backgroundColor: "#2E7D32",
     paddingVertical: 10,
@@ -210,7 +210,6 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   primaryBtnText: { color: "#fff", fontWeight: "800", textAlign: "center" },
-
   outlineBtn: {
     borderWidth: 1,
     borderColor: "#2E7D32",
@@ -218,51 +217,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: 18,
     borderRadius: 10,
     flex: 1,
+    marginLeft: 8,
   },
   outlineBtnText: { color: "#2E7D32", fontWeight: "700", textAlign: "center" },
-
-  section: {
-    marginTop: 8,
-    backgroundColor: "#fff",
-    borderRadius: 12,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    elevation: 2,
-  },
+  section: { marginTop: 8, backgroundColor: "#fff", borderRadius: 12, paddingVertical: 8, paddingHorizontal: 12, elevation: 2 },
   sectionTitle: { color: "#2E7D32", fontWeight: "700" },
-
-  optionRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: "#EEF8EE",
-    alignItems: "center",
-  },
+  optionRow: { flexDirection: "row", justifyContent: "space-between", paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: "#EEF8EE", alignItems: "center" },
   optionText: { color: "#145A32", fontWeight: "600" },
   optionChevron: { color: "#9CC39C", fontWeight: "700", fontSize: 18, marginLeft: 8 },
-
-  infoContainer: { marginTop: 8, gap: 8, paddingBottom: 8 },
-  infoRow: {
-    flexDirection: "row",
-    gap: 8,
-    alignItems: "flex-start",
-    backgroundColor: "#F7FBF7",
-    borderRadius: 10,
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-  },
+  infoContainer: { marginTop: 8, paddingBottom: 8 },
+  infoRow: { flexDirection: "row", alignItems: "flex-start", backgroundColor: "#F7FBF7", borderRadius: 10, paddingVertical: 10, paddingHorizontal: 12, marginBottom: 8 },
   infoLabel: { width: 100, color: "#145A32", fontWeight: "700" },
   infoValue: { flex: 1, color: "#0F3D12", fontWeight: "500" },
-
-  logoutBtn: {
-    marginTop: 18,
-    backgroundColor: "#fff",
-    borderRadius: 10,
-    padding: 12,
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: "#F0F0F0",
-  },
+  logoutBtn: { marginTop: 18, backgroundColor: "#fff", borderRadius: 10, padding: 12, alignItems: "center", borderWidth: 1, borderColor: "#F0F0F0" },
   logoutText: { color: "#D32F2F", fontWeight: "700" },
 });
