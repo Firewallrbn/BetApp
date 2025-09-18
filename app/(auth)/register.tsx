@@ -1,22 +1,38 @@
 import { Image } from "expo-image";
-import { Link } from "expo-router";
-import React from "react";
-import { StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { Link, useRouter } from "expo-router";
+import React, { useContext, useState } from "react";
+import { Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { AuthContext } from "../contexts/AuthContext";
 
+export default function Register() {
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirm, setConfirm] = useState("");
 
+  const { register } = useContext(AuthContext);
+  const router = useRouter();
 
-export default function Register({
-  fullName = "",
-  email = "",
-  password = "",
-  confirm = "",
-  onChangeFullName = () => {},
-  onChangeEmail = () => {},
-  onChangePassword = () => {},
-  onChangeConfirm = () => {},
-  onSignUp = () => {},
-  onSwitchToSignIn = () => {},
-}) {
+  const handleSignUp = async () => {
+    if (!email || !password) {
+      Alert.alert("Registro", "Ingresa un correo y una contraseña válidos.");
+      return;
+    }
+    if (password !== confirm) {
+      Alert.alert("Registro", "Las contraseñas no coinciden.");
+      return;
+    }
+
+    const success = await register(email, password, fullName);
+
+    if (!success) {
+      Alert.alert("Registro", "No se pudo crear la cuenta. Intenta nuevamente.");
+      return;
+    }
+
+    router.replace("/(auth)/login");
+  };
+
   return (
     <View style={styles.container}>
       <Image source={require('@/assets/images/Logo.png')} style={styles.logo} />
@@ -33,7 +49,7 @@ export default function Register({
         style={styles.input}
         placeholder="Nombre completo"
         value={fullName}
-        onChangeText={onChangeFullName}
+        onChangeText={setFullName}
         autoCapitalize="words"
         placeholderTextColor="#888"
       />
@@ -42,7 +58,7 @@ export default function Register({
         style={styles.input}
         placeholder="Correo electrónico"
         value={email}
-        onChangeText={onChangeEmail}
+        onChangeText={setEmail}
         keyboardType="email-address"
         autoCapitalize="none"
         placeholderTextColor="#888"
@@ -52,7 +68,7 @@ export default function Register({
         style={styles.input}
         placeholder="Contraseña"
         value={password}
-        onChangeText={onChangePassword}
+        onChangeText={setPassword}
         secureTextEntry
         placeholderTextColor="#888"
       />
@@ -61,21 +77,21 @@ export default function Register({
         style={styles.input}
         placeholder="Confirmar contraseña"
         value={confirm}
-        onChangeText={onChangeConfirm}
+        onChangeText={setConfirm}
         secureTextEntry
         placeholderTextColor="#888"
       />
 
       <TouchableOpacity
         style={styles.button}
-        onPress={onSignUp}
+        onPress={handleSignUp}
         activeOpacity={0.8}
       >
         <Text style={styles.buttonText}>Crear cuenta</Text>
       </TouchableOpacity>
 
       <Text style={styles.orText}>¿Ya tienes cuenta?</Text>
-      <Link href="/login" asChild>
+      <Link href="/(auth)/login" asChild>
         <TouchableOpacity
           style={styles.buttonAlt}
           activeOpacity={0.8}
